@@ -1,0 +1,79 @@
+<%- include('../partials/header', { titulo: 'Clientes' }) %>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="mb-0">Clientes</h1>
+  <a href="/clientes/novo" class="btn btn-rosa">Novo cliente</a>
+</div>
+
+<% if (sucesso) { %><div class="alert alert-success" role="alert"><%= sucesso %></div><% } %>
+<% if (erro) { %><div class="alert alert-danger" role="alert"><%= erro %></div><% } %>
+
+<form class="row g-2 mb-3" method="get" action="/clientes">
+  <div class="col-12 col-md-8">
+    <input type="search" name="busca" class="form-control"
+           placeholder="Buscar por nome, e-mail ou CPF" value="<%= busca %>">
+  </div>
+  <div class="col-6 col-md-2">
+    <button type="submit" class="btn btn-rosa w-100">Buscar</button>
+  </div>
+  <div class="col-6 col-md-2">
+    <a href="/clientes" class="btn btn-outline-secondary w-100">Limpar</a>
+  </div>
+</form>
+
+<p class="text-muted"><%= total %> cliente(s) encontrado(s)</p>
+
+<div class="table-responsive">
+  <table class="table table-striped table-hover align-middle">
+    <thead class="table-rosa">
+      <tr>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>CPF</th>
+        <th>Nascimento</th>
+        <th>CEP</th>
+        <th>Categoria</th>
+        <th>Limite</th>
+        <th class="text-end">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (itens.length === 0) { %>
+        <tr><td colspan="8" class="text-center text-muted">Nenhum cliente encontrado.</td></tr>
+      <% } %>
+      <% itens.forEach(c => { %>
+        <tr>
+          <td><%= c.nome %></td>
+          <td><%= c.email %></td>
+          <td><%= formatarCpf(c.cpf) %></td>
+          <td><%= formatarData(c.data_nascimento) %></td>
+          <td><%= formatarCep(c.cep) %></td>
+          <td><%= c.categoria %></td>
+          <td><%= formatarMoeda(c.limite_credito) %></td>
+          <td class="text-end text-nowrap">
+            <a href="/clientes/<%= c.id %>/editar" class="btn btn-sm btn-outline-primary">Editar</a>
+            <form method="post" action="/clientes/<%= c.id %>/excluir" class="d-inline"
+                  data-nome="<%= c.nome %>"
+                  onsubmit="return confirm('Deseja realmente excluir ' + this.dataset.nome + '?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<% if (paginas > 1) { %>
+<nav aria-label="Paginação">
+  <ul class="pagination justify-content-center flex-wrap">
+    <% for (let p = 1; p <= paginas; p++) { %>
+      <li class="page-item <%= p === pagina ? 'active' : '' %>">
+        <a class="page-link" href="/clientes?busca=<%= encodeURIComponent(busca) %>&pagina=<%= p %>"><%= p %></a>
+      </li>
+    <% } %>
+  </ul>
+</nav>
+<% } %>
+
+<%- include('../partials/footer') %>
